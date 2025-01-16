@@ -1,14 +1,20 @@
-import { Intro } from "@/components";
-import { View } from "react-native";
+import BottomSheet from "@/components/BottomSheet";
+import Intro from "@/components/Intro";
+import { StyleSheet, View } from "react-native";
 
-export default function Index() {
+const Index = () => {
   return (
-    <View
-      style={{
-        flex: 1,
-      }}
-    >
+    <View style={styles.container}>
       <Intro />
+      <BottomSheet />
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
+
+export default Index;
