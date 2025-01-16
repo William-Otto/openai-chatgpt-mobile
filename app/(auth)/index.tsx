@@ -1,11 +1,14 @@
-import { View, Text } from "react-native";
+import { Button, SafeAreaView } from "react-native";
 import React from "react";
+import { useSupabase } from "@/context/supabaseProvider";
 
 const Page = () => {
+  const { signOut } = useSupabase();
+
   return (
-    <View>
-      <Text>Page</Text>
-    </View>
+    <SafeAreaView>
+      <Button title="Sign out" onPress={signOut} />
+    </SafeAreaView>
   );
 };
 

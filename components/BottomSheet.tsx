@@ -4,18 +4,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
+import { useSupabase } from "@/context/supabaseProvider";
 
 const BottomSheet = () => {
   const { bottom } = useSafeAreaInsets();
+  const { signInWithOAuth } = useSupabase();
 
   return (
     <View style={[styles.container, { paddingBottom: bottom }]}>
-      <TouchableOpacity style={[defaultStyles.btn, styles.btnLight]}>
+      <TouchableOpacity
+        style={[defaultStyles.btn, styles.btnLight]}
+        onPress={() => signInWithOAuth("apple")}
+      >
         <Ionicons name="logo-apple" size={14} style={styles.btnIcon} />
         <Text style={styles.btnLightText}>Continue with Apple</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[defaultStyles.btn, styles.btnDark]}>
+      <TouchableOpacity
+        style={[defaultStyles.btn, styles.btnDark]}
+        onPress={() => signInWithOAuth("google")}
+      >
         <Ionicons
           name="logo-google"
           size={16}

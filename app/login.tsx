@@ -8,17 +8,88 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
 import { Link, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useSupabase } from "@/context/supabaseProvider";
+import { Provider } from "@supabase/supabase-js";
+import { supabase } from "@/config/supabase";
+import * as Linking from "expo-linking";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
+
+const createSessionFromUrl = async (url: string) => {
+  const { params, errorCode } = QueryParams.getQueryParams(url);
+
+  if (errorCode) throw new Error(errorCode);
+  const { access_token, refresh_token } = params;
+
+  if (!access_token) return;
+
+  const { data, error } = await supabase.auth.setSession({
+    access_token,
+    refresh_token,
+  });
+  if (error) throw error;
+
+  return data.session;
+};
 
 const Login = () => {
   const { type } = useLocalSearchParams<{ type: string }>();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { signInWithOAuth, signInWithPassword, signUp, session } =
+    useSupabase();
+
+  const url = Linking.useURL();
+  if (url) createSessionFromUrl(url);
+
+  const onSocialSignInPress = async (provider: Provider) => {
+    setIsLoading(true);
+    try {
+      const res = await signInWithOAuth(provider);
+
+      if (res?.type === "success") {
+        const { url } = res;
+        await createSessionFromUrl(url);
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onSignInPress = async () => {
+    setIsLoading(true);
+    try {
+      await signInWithPassword(email, password);
+    } catch (err: Error | any) {
+      Alert.alert(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onSignUpPress = async () => {
+    setIsLoading(true);
+    try {
+      await signUp(email, password);
+    } catch (err: Error | any) {
+      alert(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log(session);
+  }, [session]);
 
   return (
     <KeyboardAvoidingView
@@ -50,9 +121,19 @@ const Login = () => {
           onChangeText={setEmail}
           style={styles.input}
         />
+        <TextInput
+          placeholder="password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          style={styles.input}
+        />
       </View>
 
-      <TouchableOpacity style={styles.primaryButton}>
+      <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={() => (type === "login" ? onSignInPress() : onSignUpPress())}
+      >
         <Text style={styles.primaryButtonText}>Continue</Text>
       </TouchableOpacity>
 
@@ -82,12 +163,18 @@ const Login = () => {
         <View style={styles.line} />
       </View>
 
-      <TouchableOpacity style={styles.socialButton}>
+      <TouchableOpacity
+        style={styles.socialButton}
+        onPress={() => onSocialSignInPress("google")}
+      >
         <Ionicons name="logo-google" size={20} color={Colors.black} />
         <Text style={styles.socialButtonText}>Continue with Google</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.socialButton}>
+      <TouchableOpacity
+        style={styles.socialButton}
+        onPress={() => onSocialSignInPress("apple")}
+      >
         <Ionicons name="logo-apple" size={20} color={Colors.black} />
         <Text style={styles.socialButtonText}>Continue with Apple</Text>
       </TouchableOpacity>
@@ -115,7 +202,7 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   inputContainer: {
-    marginBottom: 25,
+    marginBottom: 17,
   },
   input: {
     height: 50,
@@ -125,6 +212,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: Colors.white,
     fontSize: 16,
+    marginBottom: 8,
   },
   primaryButton: {
     height: 54,

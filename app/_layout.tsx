@@ -1,9 +1,46 @@
+import { SupabaseProvider, useSupabase } from "@/context/supabaseProvider";
 import { Ionicons } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
+import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
+import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
+import { useFonts } from "expo-font";
 
-const RootLayout = () => {
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
+
+const InitialLayout = () => {
+  const [loaded, error] = useFonts({
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+  });
+
   const router = useRouter();
+  const segments = useSegments();
+
+  const { initialized, session } = useSupabase();
+
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
+
+  useEffect(() => {
+    if (initialized && loaded) {
+      setTimeout(() => {
+        SplashScreen.hideAsync();
+      }, 500);
+    }
+  }, [initialized, loaded]);
+
+  useEffect(() => {
+    if (!initialized) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (session && !inAuthGroup) {
+      router.replace("/(auth)");
+    } else if (!session) {
+      router.replace("/");
+    }
+  }, [initialized, session]);
 
   return (
     <Stack>
@@ -25,8 +62,17 @@ const RootLayout = () => {
           ),
         }}
       />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
     </Stack>
   );
 };
 
-export default RootLayout;
+const RootLayoutNav = () => {
+  return (
+    <SupabaseProvider>
+      <InitialLayout />
+    </SupabaseProvider>
+  );
+};
+
+export default RootLayoutNav;
