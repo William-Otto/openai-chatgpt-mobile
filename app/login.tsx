@@ -10,7 +10,7 @@ import {
   Image,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
 import { Link, useLocalSearchParams } from "expo-router";
@@ -38,7 +38,7 @@ const createSessionFromUrl = async (url: string) => {
   return data.session;
 };
 
-const Login = () => {
+const Page = () => {
   const { type } = useLocalSearchParams<{ type: string }>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -86,10 +86,6 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
 
   return (
     <KeyboardAvoidingView
@@ -274,4 +270,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default Page;

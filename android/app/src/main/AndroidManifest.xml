@@ -27,6 +27,7 @@
         <data android:scheme="myapp"/>
         <data android:scheme="com.williamotto.openaichatgptmobile"/>
         <data android:scheme="exp+openai-chatgpt-mobile"/>
+        <data android:scheme="com.supabase"/>
       </intent-filter>
     </activity>
   </application>

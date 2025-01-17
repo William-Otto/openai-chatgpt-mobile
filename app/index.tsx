@@ -2,7 +2,7 @@ import BottomSheet from "@/components/BottomSheet";
 import Intro from "@/components/Intro";
 import { StyleSheet, View } from "react-native";
 
-const Index = () => {
+const Page = () => {
   return (
     <View style={styles.container}>
       <Intro />
@@ -17,4 +17,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Index;
+export default Page;

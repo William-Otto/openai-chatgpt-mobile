@@ -4,6 +4,7 @@ import { SplashScreen, Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import { useFonts } from "expo-font";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,7 +37,7 @@ const InitialLayout = () => {
     const inAuthGroup = segments[0] === "(auth)";
 
     if (session && !inAuthGroup) {
-      router.replace("/(auth)");
+      router.replace("/(auth)/(drawer)/(chat)");
     } else if (!session) {
       router.replace("/");
     }
@@ -70,7 +71,9 @@ const InitialLayout = () => {
 const RootLayoutNav = () => {
   return (
     <SupabaseProvider>
-      <InitialLayout />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <InitialLayout />
+      </GestureHandlerRootView>
     </SupabaseProvider>
   );
 };
